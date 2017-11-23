@@ -115,7 +115,8 @@ Attributes<-as.matrix(c(mydata$Pclass,mydata$Sex, mydata$Age, mydata$SibSp,mydat
 
 Attributes<-c("Pclass","Sex", "Age", "SibSp","Parch","Fare", "Embarked")
 
-
+Attribute_index<-c(3,5,6,7,8,10,12)
+names(Attribute_index)<-Attributes
 Attributes[,1]
 
 random_number<-as.vector(sample(1:7,size=2))
@@ -127,6 +128,20 @@ for(i in 1:length(random_number)){
   rand<-random_number[i]
   feature<-Attributes[rand]
   feature1<-c(feature1,feature)
+  entropy_value1<-entropy(mydata[,Attribute_index[random_number[1]]])
+  entropy_value2<-entropy(mydata[,Attribute_index[random_number[2]]])
+  if(entropy_value1>entropy_value2){
+    best_node<-mydata[,Attribute_index[random_number[1]]]
+  }
+  else
+  {
+    best_node<-mydata[,Attribute_index[random_number[2]]]
+  }
+}
+
+for(i in 1:length(Attributes)){
+
+  entropy_list<-c(entropy_list, entropy_value)
 }
 
 
