@@ -38,9 +38,9 @@ str_column_to_int <- function(dataset, column){
 
 ##Terminal Node
 to_terminal <- function(group){
-  for (row in 1:length(group))
+  for (row in 1:lengths(group))
   {
-    outcomes <- row[-1]##Check this again
+    outcomes <- datasets[,2] ##Check this again
   }
   
   return(list(max(unique(outcomes), key <- count(outcomes))))
