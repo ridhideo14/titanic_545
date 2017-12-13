@@ -1,3 +1,17 @@
+mydata <- read.csv("~/Desktop/train.csv")
+#mydata <- as.data.frame(mydata)
+# mydata<-as.matrix(mydata)
+library(ggplot2) # visualization
+#library('tidyverse')
+library(magrittr)
+dim(mydata)
+library(gdata)
+##Data Visualization
+ggplot(mydata, aes(Age,fill = factor(Survived))) +
+  geom_histogram(stat = "count")
+ggplot(mydata, aes(Fare,fill = factor(Survived))) +
+  geom_histogram(stat = "density")
+
 ##Enumerate Function : https://gist.github.com/kevinushey/7538142b5e16dd3b7200
 enumerate <- function(X, FUN, ...) {
   result <- vector("list", length(X))
@@ -36,42 +50,112 @@ str_column_to_int <- function(dataset, column){
 
 
 
+
+###
+
+
+
+###
+library(plyr)
 ##Terminal Node
 to_terminal <- function(group){
-  for (row in 1:lengths(group))
-  {
-    outcomes <- datasets[,2] ##Check this again
-  }
-  
-  return(list(max(unique(outcomes), key <- count(outcomes))))
-}
+    outcomes_left <- groups[[1]][2,]
+    ##Check this again
+    outcomes_left <- as.matrix(outcomes_left)
+    outcomes_left <- t(outcomes_left)
+    count_zero_left = 0
+    count_one_left = 0
+    for (j in 2:dim(outcomes_left)[1])
+    {
+      if(outcomes_left[j,1] == 0)
+      {
+      count_zero_left = count_zero_left + 1
+      }else
+      {
+        count_one_left = count_one_left + 1
+      }
+    }
+    outcomes_right <- groups[[2]][2,]
+    outcomes_right <- as.matrix(outcomes_right)
+    outcomes_right <- t(outcomes_right)
+    count_zero_right = 0
+    count_one_right = 0
+    for (j in 2:dim(outcomes_right)[1])
+    {
+      if(outcomes_right[j,1] == 0)
+      {
+        count_zero_right = count_zero_right + 1
+      }else
+      {
+        count_one_right = count_one_right + 1
+      }
+    }
+    temp1 <- is(count_zero_left>count_one_left)
+    temp2 <- is(count_zero_right>count_one_right)
+    if (temp1 == 1 && temp2 == 1)
+    {
+      return(c(0,0))
+    }else if (temp1 == 0 && temp2 == 1)
+    {
+      return(c(1,0))
+    }else if (temp1 == 1 && temp2 == 0)
+    {
+      return(c(0,1))
+    } else
+    {
+      return(c(1,1))
+    }
 
-Split <- function(node,max_depth,min_size,n_features,depth){
-  c(left, right) <- node[groups] 
-  del(node[groups])
-  if (left == 0 | right==0)
+}
+##For testing the function to terminal
+groups <- m1
+temp <- to_terminal(m1)
+###__----------------------------------------
+
+Split <- function(root,max_depth,min_size,n_features,depth){
+  left <- root[[3]][1]
+  right <- root[[3]][2]
+  rm(root[[3]])
+  # temp1 <- dim(as.matrix(left))
+  # temp2 <- dim(as.matrix(right))
+
+  if (left == 0 || right == 0)
   {
-    node[left]= node[right]=to_terminal(left+right)
+    val = to_terminal(left+right)
+    left = val[1]
+    right = val[2]
   }
    if (depth >= max_depth)
    {
-     node[left]= to_terminal(left)
-     node[right]= to_terminal(right)
+     val2= to_terminal(left)
+     left = val2[1]
+     val3= to_terminal(right)
+     right = val3[2]
    }
   
+  # temp <- as.matrix(root[[3]])
+  # temp1 <- temp[1]
+  # temp2 <- temp[2]
+  len_left <- dim(left[[1]])[2]
+  len_right <- dim(right[[1]])[2]
   ##process left child
-  if (length(left) <= min_size){
-    node[left] <- to_terminal(left)
+  if (len_left <= min_size){
+    
+    val4 <- to_terminal(left)
+    left <- val4[1]
   }else {
-    node[left] <- get_split(left,n_features)
-    split(node[left],max_depth,nmin_size,n_features,depth+1)
+    val4 <- get_split(left,n_features)
+    left <- val4[[3]][1]
+    split(left,max_depth,nmin_size,n_features,depth+1)
   }
   ##process right child
-  if (length(right) <= min_size){
-    node[right] <- to_terminal(right)
+  if (right <= min_size){
+    val5 <- to_terminal(right)
+    right <- val5[2]
   }else {
-    node[right] <- get_split(right,n_features)
-    split(node[right],max_depth,nmin_size,n_features,depth+1)
+    val5 <- get_split(right,n_features)
+    right <- val5[[3]][2]
+    split(right,max_depth,nmin_size,n_features,depth+1)
   }
   
 } 
@@ -84,7 +168,7 @@ Split <- function(node,max_depth,min_size,n_features,depth){
 build_tree <- function(train,max_depth,min_size,n_features){
   
   root <- get_split(train, n_features)
-  split(node[right], max_depth, min_size, n_features, 1)
+  split(root, max_depth, min_size, n_features, 1)
   return(root)
 }
 
