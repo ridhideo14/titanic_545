@@ -1,0 +1,54 @@
+to_terminal <- function(groups){
+  outcomes_left <- groups[[3]][1]
+  ##Check this again
+  outcomes_left <- as.matrix(outcomes_left)
+  outcomes_left <- t(outcomes_left)
+  count_zero_left = 0
+  count_one_left = 0
+  temp <- dim(outcomes_left[[1]])
+  for (j in 2:temp[2])
+  {
+    if(outcomes_left[[1]][8,j] == 0)
+    {
+      count_zero_left = count_zero_left + 1
+    }else
+    {
+      count_one_left = count_one_left + 1
+    }
+  }
+  outcomes_right <- groups[[3]][2]
+  outcomes_right <- as.matrix(outcomes_right)
+  outcomes_right <- t(outcomes_right)
+  count_zero_right = 0
+  count_one_right = 0
+  temp1 <- dim(outcomes_right[[1]])
+  for (k in 2:temp1[2])
+  {
+    if(outcomes_right[[1]][8,j] == 0)
+    {
+      count_zero_right = count_zero_right + 1
+    }else
+    {
+      count_one_right = count_one_right + 1
+    }
+  }
+  temp1 <- is(count_zero_left>count_one_left)
+  temp2 <- is(count_zero_right>count_one_right)
+  if (temp1 == 1 && temp2 == 1)
+  {
+    return(c(0,0))
+  }else if (temp1 == 0 && temp2 == 1)
+  {
+    return(c(1,0))
+  }else if (temp1 == 1 && temp2 == 0)
+  {
+    return(c(0,1))
+  } else
+  {
+    return(c(1,1))
+  }
+  
+}
+##For testing the function to terminal
+group <- m1
+temp <- to_terminal(mock_groups)
