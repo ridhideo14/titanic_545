@@ -82,7 +82,7 @@ for(i in 1:length(Age_missing)){
   
 } 
 
-mydata <- read.csv("~/Desktop/train1.csv")
+mydata <-read.csv("~/Desktop/train1.csv")
 
 #mydata
 print("No NA's in the age field: can se seen below") 
@@ -127,45 +127,24 @@ b<-cross_validation_split(datasets,3)
 datasets1<-matrix(ncol=8)
 test_split<-function(index,value,datasets){
   #concat_data <- cbindX(concat_data, as.data.frame(mydata[5,]),as.data.frame(mydata[6,]))
-  concat_data_left<-data.frame(ncol=13)
-  concat_data_right<-data.frame(ncol=13)
-  # concat_data_left<- data.frame(
-  #   PassengerId     =integer(),
-  #   Survived      =integer()  ,
-  #   Pclass           =integer(),
-  #   Name      =character(),
-  #   Sex                   =character(),
-  #   Age        =double(),
-  #   SibSp        =integer(),
-  #   Parch                  =integer(),
-  #   Ticket       =character(),
-  #   Fare                     =double(),  
-  #   Cabin                     =character(),                                                  
-  #   Embarked                  =character(),   
-  #   Title  =character() )
-  # concat_data_right<- data.frame(
-  #   PassengerId     =integer(),
-  #   Survived      =integer()  ,
-  #   Pclass           =integer(),
-  #   Name      =character(),
-  #   Sex                   =character(),
-  #   Age        =double(),
-  #   SibSp        =integer(),
-  #   Parch                  =integer(),
-  #   Ticket       =character(),
-  #   Fare                     =double(),  
-  #   Cabin                     =character(),                                                  
-  #   Embarked                  =character(),   
-  #   Title  =character() )
-  # 
+  concat_data_left<-data.frame(ncol=8)
+  concat_data_right<-data.frame(ncol=8)
+
+
   left<-c()
   right<-c()
-  for(i in 1:nrow(datasets)){
-    if(datasets[i,index]<value){
-      concat_data_left <- cbindX(concat_data_left, as.data.frame(datasets[1,]))
+  kim<-do.call(rbind,as.list(datasets))
+  kim<-t(kim)
+  datasets1<-matrix(kim,ncol=8)
+  #print(dim(datasets1))
+  print("In function test_split")
+  print(dim(datasets1))
+  for(i in 1:nrow(datasets1)){
+    if(!is.na(datasets[i,index]< value)){
+      concat_data_left <- cbindX(concat_data_left, as.data.frame(datasets1[i,]))
     }
     else{
-      concat_data_right <- cbindX(concat_data_right, as.data.frame(datasets[2,]))
+      concat_data_right <- cbindX(concat_data_right, as.data.frame(datasets1[i,]))
     }
   }
   
@@ -173,9 +152,9 @@ test_split<-function(index,value,datasets){
   
 }
 
-concat_data_left<-data.frame(ncol=8)
-concat_data_right<-data.frame(ncol=8)
-m1<-test_split(3,10,datasets)
+#concat_data_left<-data.frame(ncol=8)
+#concat_data_right<-data.frame(ncol=8)
+#m1<-test_split(3,10,datasets)
 
 
 evaluate_algorithm<-function(datasets,random_forest,n_folds,max_depth,min_size,sample_size,n_trees,n_features){
@@ -202,7 +181,7 @@ evaluate_algorithm<-function(datasets,random_forest,n_folds,max_depth,min_size,s
     predicted<-random_forest(train_set,test_set,max_depth,min_size,sample_size,n_features)
     #Actual labels
     for(i in 1:fold_size){
-      Actual_value<-set_2[i,2]
+      Actual_value<-set_2[i,8]
       actual<-c(actual,Actual_value)
       
     }
@@ -288,8 +267,8 @@ get_split<-function(datasets, n_features){
   # print(dim(datasets2))
   
   groups<-list()
-  for(i in 1:7){
-    for(j in 1:nrow(datasets2)){
+  for(i in 1:4){
+    for(j in 1:20){
       groups<-test_split(i,datasets2[j,i],datasets2)
       #print(dim(groups))
       #print(groups[[1]])
@@ -315,26 +294,36 @@ get_split<-function(datasets, n_features){
 
 
 library(plyr)
-
 Split <- function(root,max_depth,min_size,n_features,depth){
+  print("I am in SPLIT")
   left <- root[[3]][1]
   right <- root[[3]][2]
-  rm(root[[3]])
+  #rm(root[[3]])
   # temp1 <- dim(as.matrix(left))
   # temp2 <- dim(as.matrix(right))
   
-  if (left == 0 || right == 0)
+  if (length(left[[1]]) == 1 || length(right[[1]]) == 1)
   {
-    val = to_terminal(left+right)
-    left = val[1]
-    right = val[2]
+    if(length(left[[1]]) == 1)
+    {
+      val = to_terminal(left)
+      left = val
+    }else
+    {
+      val = to_terminal(right)
+      right = val
+    }
+    
+    
+    
   }
+  
   if (depth >= max_depth)
   {
     val2= to_terminal(left)
-    left = val2[1]
+    left = val2
     val3= to_terminal(right)
-    right = val3[2]
+    right = val3
   }
   
   # temp <- as.matrix(root[[3]])
@@ -346,33 +335,63 @@ Split <- function(root,max_depth,min_size,n_features,depth){
   if (len_left <= min_size){
     
     val4 <- to_terminal(left)
-    left <- val4[1]
+    left <- val4
   }else {
     val4 <- get_split(left,n_features)
-    left <- val4[[3]][1]
-    split(left,max_depth,nmin_size,n_features,depth+1)
+    left <- val4
+    Split(left,max_depth,min_size,n_features,depth+1)
   }
   ##process right child
-  if (right <= min_size){
+  if (len_right <= min_size){
     val5 <- to_terminal(right)
-    right <- val5[2]
+    right <- val5
   }else {
     val5 <- get_split(right,n_features)
-    right <- val5[[3]][2]
-    split(right,max_depth,nmin_size,n_features,depth+1)
+    right <- val5
+    Split(right,max_depth,min_size,n_features,depth+1)
   }
-  
+  print("I am exiting SPLIT")
 } 
 
 
-
+##Terminal Node
+to_terminal <- function(LR){
+  print("I am in TO_TERMINAL")
+  outcomes <- LR[[1]]
+  ##Check this again
+  outcomes <- as.matrix(outcomes)
+  outcomes <- t(outcomes)
+  count_zero = 0
+  count_one = 0
+  temp <- dim(outcomes)
+  for (j in 1:temp[2])
+  {
+    if(!is.na(outcomes[8,j] == 0))
+    {
+      count_zero = count_zero + 1
+    }else
+    {
+      count_one = count_one + 1
+    }
+  }
+  
+  if(count_one>count_zero)
+  {
+    return(1)
+  }else
+  {
+    return(0)
+  }
+  print("I am Exiting TO_TERMINAL")
+}
 
 ##build a decision tree
 
 build_tree <- function(train,max_depth,min_size,n_features){
   
   root <- get_split(train, n_features)
-  split(root, max_depth, min_size, n_features, 1)
+  print("Hello I am done finding the root!!!!")
+  Split(root, max_depth, min_size, n_features, 1)
   return(root)
 }
 
@@ -417,27 +436,4 @@ subsample <- function(dataset, ratio)
 # root$groups[[1]]
 
 root <- build_tree(mydata,5,1,3)
-
-
-
-
-to_terminal<-function(group){
-  list_for_outcomes<-c()
-  list99<-c()
-  dimention<-dim(group)
-  length3<-dimention[2]
-  gg3<-as.matrix(group)
-  list_for_outcomes <-gg3[2,]
-  list99<-names(sort(summary(as.factor(list_for_outcomes)), decreasing=T)[1])
-  #list99[1]
-
-  as.integer(list99)
-  return(as.integer(list99))
-  #return(which.max(table(list_for_outcomes)))
- # return(max(unique(list_for_outcomes)))
-
-}
-to_terminal(mydata)
-
-
 
